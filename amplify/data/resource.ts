@@ -1,17 +1,103 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
+/**
+ * Full production schema for the Str8hitz Admin Dashboard
+ * Tracking Clicks, Sales, Contacts, Subscribers, Media Uploads, Content Releases, Event Logs, Page Views
+ */
+
 const schema = a.schema({
-  Todo: a
+  Click: a
     .model({
-      content: a.string(),
+      itemId: a.string(),
+      timestamp: a.datetime(),
+      userId: a.string().optional(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [
+      allow.authenticated(),
+      allow.guest().read(),
+    ]),
+
+  Sale: a
+    .model({
+      amount: a.float(),
+      currency: a.string(),
+      timestamp: a.datetime(),
+      userId: a.string().optional(),
+    })
+    .authorization((allow) => [
+      allow.authenticated(),
+      allow.guest().read(),
+    ]),
+
+  Contact: a
+    .model({
+      name: a.string(),
+      email: a.email(),
+      message: a.string(),
+      timestamp: a.datetime(),
+    })
+    .authorization((allow) => [
+      allow.guest(),
+    ]),
+
+  Subscriber: a
+    .model({
+      userId: a.string(),
+      email: a.email(),
+      subscriptionDate: a.datetime(),
+    })
+    .authorization((allow) => [
+      allow.authenticated(),
+      allow.group("Admin").read(),
+    ]),
+
+  MediaUpload: a
+    .model({
+      fileName: a.string(),              // Name of uploaded file
+      fileType: a.string(),              // File type (image, video, etc.)
+      uploadedBy: a.string(),            // User ID of uploader
+      uploadTimestamp: a.datetime(),     // When uploaded
+      url: a.url(),                      // Public URL or S3 reference
+    })
+    .authorization((allow) => [
+      allow.authenticated(),             // Only logged-in users can upload
+      allow.group("Admin").read(),        // Admins can read all uploads
+    ]),
+
+  ContentRelease: a
+    .model({
+      title: a.string(),                 // Title of content (EP, single, press kit)
+      description: a.string().optional(),// Description (optional)
+      releaseDate: a.datetime(),         // Release date
+      mediaUrl: a.url(),                 // URL to the exclusive content
+    })
+    .authorization((allow) => [
+      allow.group("Admin"),              // Only Admins can create releases
+      allow.guest().read(),              // Public can view released content
+    ]),
+
+  EventLog: a
+    .model({
+      eventType: a.string(),             // Login, Upload, Click, etc.
+      userId: a.string().optional(),     // Optional: who did it
+      timestamp: a.datetime(),           // When the event happened
+      details: a.string().optional(),    // Extra details if needed
+    })
+    .authorization((allow) => [
+      allow.authenticated(),
+      allow.group("Admin").read(),
+    ]),
+
+  PageView: a
+    .model({
+      page: a.string(),                  // Page visited
+      timestamp: a.datetime(),           // When visited
+      userId: a.string().optional(),      // Who visited
+    })
+    .authorization((allow) => [
+      allow.authenticated(),
+      allow.guest().read(),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -25,32 +111,3 @@ export const data = defineData({
     },
   },
 });
-
-/*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
-=========================================================================*/
-
-/*
-"use client"
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>() // use this Data client for CRUDL requests
-*/
-
-/*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
-=========================================================================*/
-
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
