@@ -1,10 +1,7 @@
 import { Amplify } from 'aws-amplify';
-import amplifyOutputs from '../amplify_outputs.json'; // Path to your generated outputs
-import { createServerRunner } from '@aws-amplify/adapter-nextjs';
+import amplifyOutputs from '../amplify_outputs.json'; // Ensure the path is correct
+// Removed 'withSSRContext' as it is not exported by 'aws-amplify'
 
 Amplify.configure(amplifyOutputs);
 
-// Optional: Next.js server-side rendering support
-export const { withSSRContext } = createServerRunner({
-  config: amplifyOutputs
-});
+// Removed 'withSSRContext' export as it is not available
