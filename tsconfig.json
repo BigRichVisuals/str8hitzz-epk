@@ -16,6 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@root/*": ["./*"], // <- new alias for root-level files
+      
       "@models": ["src/models.ts"],
       "@amplify": ["amplify_outputs.json"]
     },

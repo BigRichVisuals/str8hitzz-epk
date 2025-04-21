@@ -1,0 +1,399 @@
+scalar AWSURL
+scalar AWSTimestamp
+scalar AWSDate
+scalar AWSEmail
+scalar AWSPhone
+scalar AWSJSON
+scalar AWSDateTime
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type ExclusiveContent @aws_cognito_user_pools @aws_iam {
+  createdAt: AWSDateTime!
+  description: String
+  id: ID!
+  mediaUrl: AWSURL
+  releaseDate: AWSDateTime
+  title: String
+  updatedAt: AWSDateTime!
+}
+
+type ModelExclusiveContentConnection @aws_cognito_user_pools @aws_iam {
+  items: [ExclusiveContent]!
+  nextToken: String
+}
+
+type ModelPageViewConnection @aws_cognito_user_pools @aws_iam {
+  items: [PageView]!
+  nextToken: String
+}
+
+type Mutation {
+  createExclusiveContent(condition: ModelExclusiveContentConditionInput, input: CreateExclusiveContentInput!): ExclusiveContent @aws_cognito_user_pools @aws_iam
+  createPageView(condition: ModelPageViewConditionInput, input: CreatePageViewInput!): PageView @aws_iam
+  deleteExclusiveContent(condition: ModelExclusiveContentConditionInput, input: DeleteExclusiveContentInput!): ExclusiveContent @aws_cognito_user_pools @aws_iam
+  deletePageView(condition: ModelPageViewConditionInput, input: DeletePageViewInput!): PageView @aws_cognito_user_pools @aws_iam
+  updateExclusiveContent(condition: ModelExclusiveContentConditionInput, input: UpdateExclusiveContentInput!): ExclusiveContent @aws_cognito_user_pools @aws_iam
+  updatePageView(condition: ModelPageViewConditionInput, input: UpdatePageViewInput!): PageView @aws_cognito_user_pools @aws_iam
+  updateProfileHeader(input: UpdateProfileHeaderInput!): ProfileHeader @aws_cognito_user_pools @aws_iam
+  updateProfileLinks(input: UpdateProfileLinksInput!): ProfileLinks @aws_cognito_user_pools @aws_iam
+  # MusicTrack mutations are now managed via the MusicTrack type below.
+}
+type MusicTrack @model
+  @auth(rules: [
+    { allow: public, provider: iam, operations: [read] },
+    { allow: groups, groups: ["Admin"], operations: [create, update, delete] }
+  ])
+{
+  id: ID!
+  title: String!
+  audioUrl: AWSURL!
+  isExclusive: Boolean!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+type PageView @aws_cognito_user_pools @aws_iam {
+  createdAt: AWSDateTime!
+  id: ID!
+  page: String
+  updatedAt: AWSDateTime!
+  viewedAt: AWSDateTime
+}
+
+type Query {
+  getExclusiveContent(id: ID!): ExclusiveContent @aws_cognito_user_pools @aws_iam
+  getPageView(id: ID!): PageView @aws_cognito_user_pools @aws_iam
+  listExclusiveContents(filter: ModelExclusiveContentFilterInput, limit: Int, nextToken: String): ModelExclusiveContentConnection @aws_cognito_user_pools @aws_iam
+  listPageViews(filter: ModelPageViewFilterInput, limit: Int, nextToken: String): ModelPageViewConnection @aws_cognito_user_pools @aws_iam
+}
+
+type Subscription {
+  onCreateExclusiveContent(filter: ModelSubscriptionExclusiveContentFilterInput): ExclusiveContent @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createExclusiveContent"])
+  onCreatePageView(filter: ModelSubscriptionPageViewFilterInput): PageView @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["createPageView"])
+  onDeleteExclusiveContent(filter: ModelSubscriptionExclusiveContentFilterInput): ExclusiveContent @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deleteExclusiveContent"])
+  onDeletePageView(filter: ModelSubscriptionPageViewFilterInput): PageView @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["deletePageView"])
+  onUpdateExclusiveContent(filter: ModelSubscriptionExclusiveContentFilterInput): ExclusiveContent @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updateExclusiveContent"])
+  onUpdatePageView(filter: ModelSubscriptionPageViewFilterInput): PageView @aws_cognito_user_pools @aws_iam @aws_subscribe(mutations : ["updatePageView"])
+}
+
+enum ModelAttributeTypes {
+  _null
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+input AmplifyAIConversationTurnErrorInput {
+  errorType: String!
+  message: String!
+}
+
+input CreateExclusiveContentInput {
+  description: String
+  id: ID
+  mediaUrl: AWSURL
+  releaseDate: AWSDateTime
+  title: String
+}
+
+input CreatePageViewInput {
+  id: ID
+  page: String
+  viewedAt: AWSDateTime
+}
+
+input DeleteExclusiveContentInput {
+  id: ID!
+}
+
+input DeletePageViewInput {
+  id: ID!
+}
+
+input ModelBooleanInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  eq: Boolean
+  ne: Boolean
+}
+
+input ModelExclusiveContentConditionInput {
+  and: [ModelExclusiveContentConditionInput]
+  createdAt: ModelStringInput
+  description: ModelStringInput
+  mediaUrl: ModelStringInput
+  not: ModelExclusiveContentConditionInput
+  or: [ModelExclusiveContentConditionInput]
+  releaseDate: ModelStringInput
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelExclusiveContentFilterInput {
+  and: [ModelExclusiveContentFilterInput]
+  createdAt: ModelStringInput
+  description: ModelStringInput
+  id: ModelIDInput
+  mediaUrl: ModelStringInput
+  not: ModelExclusiveContentFilterInput
+  or: [ModelExclusiveContentFilterInput]
+  releaseDate: ModelStringInput
+  title: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input ModelFloatInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  between: [Float]
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+}
+
+input ModelIDInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input ModelPageViewConditionInput {
+  and: [ModelPageViewConditionInput]
+  createdAt: ModelStringInput
+  not: ModelPageViewConditionInput
+  or: [ModelPageViewConditionInput]
+  page: ModelStringInput
+  updatedAt: ModelStringInput
+  viewedAt: ModelStringInput
+}
+
+input ModelPageViewFilterInput {
+  and: [ModelPageViewFilterInput]
+  createdAt: ModelStringInput
+  id: ModelIDInput
+  not: ModelPageViewFilterInput
+  or: [ModelPageViewFilterInput]
+  page: ModelStringInput
+  updatedAt: ModelStringInput
+  viewedAt: ModelStringInput
+}
+
+input ModelSizeInput {
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+}
+
+input ModelStringInput {
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionBooleanInput {
+  eq: Boolean
+  ne: Boolean
+}
+
+input ModelSubscriptionExclusiveContentFilterInput {
+  and: [ModelSubscriptionExclusiveContentFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  mediaUrl: ModelSubscriptionStringInput
+  or: [ModelSubscriptionExclusiveContentFilterInput]
+  releaseDate: ModelSubscriptionStringInput
+  title: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionFloatInput {
+  between: [Float]
+  eq: Float
+  ge: Float
+  gt: Float
+  in: [Float]
+  le: Float
+  lt: Float
+  ne: Float
+  notIn: [Float]
+}
+
+input ModelSubscriptionIDInput {
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  in: [ID]
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+  notIn: [ID]
+}
+
+input ModelSubscriptionIntInput {
+  between: [Int]
+  eq: Int
+  ge: Int
+  gt: Int
+  in: [Int]
+  le: Int
+  lt: Int
+  ne: Int
+  notIn: [Int]
+}
+
+input ModelSubscriptionPageViewFilterInput {
+  and: [ModelSubscriptionPageViewFilterInput]
+  createdAt: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  or: [ModelSubscriptionPageViewFilterInput]
+  page: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  viewedAt: ModelSubscriptionStringInput
+}
+
+input ModelSubscriptionStringInput {
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  in: [String]
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+  notIn: [String]
+}
+
+input UpdateExclusiveContentInput {
+  description: String
+  id: ID!
+  mediaUrl: AWSURL
+  releaseDate: AWSDateTime
+  title: String
+}
+
+input UpdatePageViewInput {
+  id: ID!
+  page: String
+  viewedAt: AWSDateTime
+}
+
+type ProfileHeader @aws_cognito_user_pools @aws_iam {
+  id: ID!
+  logoUrl: AWSURL
+  headline: String
+  subHeadline: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input UpdateProfileHeaderInput {
+  id: ID!
+  logoUrl: AWSURL
+  headline: String
+  subHeadline: String
+}
+
+type ProfileLinks @aws_cognito_user_pools @aws_iam {
+  id: ID!
+  youtube: AWSURL
+  instagram: AWSURL
+  spotify: AWSURL
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input UpdateProfileLinksInput {
+  id: ID!
+  youtube: AWSURL
+  instagram: AWSURL
+  spotify: AWSURL
+}
+
+type MusicTrack @aws_cognito_user_pools @aws_iam {
+  id: ID!
+  title: String!
+  audioUrl: AWSURL!
+  isExclusive: Boolean!
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+input CreateMusicTrackInput {
+  id: ID
+  title: String!
+  audioUrl: AWSURL!
+  isExclusive: Boolean!
+}
+
+input UpdateMusicTrackInput {
+  id: ID!
+  title: String
+  audioUrl: AWSURL
+  isExclusive: Boolean
+}
+
+input DeleteMusicTrackInput {
+  id: ID!
+}

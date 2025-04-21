@@ -3,15 +3,19 @@
 import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import { fetchAuthSession } from "@aws-amplify/auth"; 
-import { uploadData } from "@aws-amplify/storage"; // ✅ Correct for Amplify v6
+import { uploadData } from "aws-amplify/storage"; // Amplify Gen2 v6+ import
 import outputs from "../../../amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { useState, useEffect } from "react";
-import styles from "./page.module.css";
 import { client } from "@/models"; // Updated import
 import { createExclusiveContent } from "@/mutations";
-import { listPageViews } from "../../../queries";
 import { GraphQLResult } from "@aws-amplify/api";
+import { listExclusiveContents } from "@/queries";
+import { updateExclusiveContent } from "@/mutations";
+import ProfileHeaderEditor from "../../../components/ProfileHeaderEditor";
+import AdminGalleryPanel from "../../../components/AdminGalleryPanel";
+import ProfileHeaderSettings from "../../../components/ProfileHeaderEditor";
+import AdminGallery from "../../../components/AdminGalleryPanel";
 
 Amplify.configure(outputs);
 
@@ -38,10 +42,9 @@ export default function AdminDashboard() {
     if (authStatus === "authenticated") {
       fetchGroups();
     }
-  }, [authStatus]);
+  }, [authStatus, isAdmin]);
 
   // Stats
-  const [pageViews, setPageViews] = useState(0);
   const [subscribers, setSubscribers] = useState(0); 
 
   // Upload
@@ -56,15 +59,42 @@ export default function AdminDashboard() {
   const [contentUpload, setContentUpload] = useState<File | null>(null);
   const [contentUploadStatus, setContentUploadStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [exclusiveList, setExclusiveList] = useState<any[]>([]);
+  const [editForms, setEditForms] = useState<Record<string, {
+    title: string;
+    description: string;
+    releaseDate: string;
+    mediaUrl?: string;
+  }>>({});
+  const [creating, setCreating] = useState(false);
 
   const fetchStats = async () => {
     try {
-      const result = await client.graphql({ query: listPageViews });
-      const items = result.data?.listPageViews?.items || [];
-      setPageViews(items.length);
+      // Page view tracking is no longer used. This section is intentionally left blank.
     } catch (error) {
       console.error("Error fetching stats:", error);
       setErrorMessage("Failed to fetch site statistics. Please try again later.");
+    }
+  };
+  // Handler to update existing exclusive content items
+  const handleUpdateExclusive = async (id: string) => {
+    const form = editForms[id];
+    try {
+      await client.graphql({
+        query: updateExclusiveContent,
+        variables: { input: { id, ...form } },
+      });
+      alert("Exclusive content updated!");
+      // Refresh the list after update
+      const result = await client.graphql({ query: listExclusiveContents });
+      if ("data" in result) {
+        setExclusiveList(result.data?.listExclusiveContents?.items || []);
+      } else {
+        console.error("Unexpected result type:", result);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Update failed. Check console for details.");
     }
   };
 
@@ -74,7 +104,7 @@ export default function AdminDashboard() {
     try {
       const filePath = `uploads/${category}/${file.name}`;
       await uploadData({
-        key: filePath,
+      path: filePath,
         data: file,
         options: {
           contentType: file.type,
@@ -89,8 +119,10 @@ export default function AdminDashboard() {
   };
 
   const handleCreateExclusiveContent = async () => {
+    setCreating(true);
     if (!title || !releaseDate) {
       alert("Please fill out title and release date.");
+      setCreating(false);
       return;
     }
 
@@ -100,7 +132,7 @@ export default function AdminDashboard() {
       try {
         const filePath = `uploads/exclusive/${contentUpload.name}`;
         await uploadData({
-          key: filePath,
+        path: filePath,
           data: contentUpload,
           options: {
             contentType: contentUpload.type,
@@ -131,9 +163,11 @@ export default function AdminDashboard() {
       setDescription("");
       setReleaseDate("");
       setContentUpload(null);
+      setCreating(false);
     } catch (error) {
       console.error("Error creating exclusive content", error);
       alert("Failed to create exclusive content.");
+      setCreating(false);
     }
   };
 
@@ -144,7 +178,6 @@ export default function AdminDashboard() {
       {/* Site Analytics */}
       <div className="analytics-section">
         <h3>Site Analytics</h3>
-        <p><strong>Page Views:</strong> {pageViews}</p>
         <p><strong>Subscribers:</strong> {subscribers}</p> {/* Optional */}
         <p><strong>Sales:</strong> (Static for now)</p>
       </div>
@@ -183,6 +216,7 @@ export default function AdminDashboard() {
           type="text"
           placeholder="Title"
           value={title}
+          onChange={e => setTitle(e.target.value)}
           className="inputField"
         />
         <textarea
@@ -201,12 +235,72 @@ export default function AdminDashboard() {
           type="file"
           onChange={(e) => setContentUpload(e.target.files?.[0] || null)}
         />
-        <button onClick={handleCreateExclusiveContent} style={{ marginTop: "1rem" }}>
+        <button
+          onClick={handleCreateExclusiveContent}
+          disabled={creating}
+          style={{ marginTop: "1rem" }}>
           Publish Exclusive Content
         </button>
 
         {contentUploadStatus && <p>{contentUploadStatus}</p>}
       </div>
+      {/* Manage Exclusive Content */}
+      {isAdmin && exclusiveList.length > 0 && (
+        <div className="card mt-8 p-6">
+          <h3 className="text-lg font-semibold mb-4">Manage Exclusive Content</h3>
+          {exclusiveList.map(item => (
+            <div key={item.id} className="mb-6">
+              <h4 className="font-medium mb-2">Editing: {item.title}</h4>
+              <input
+                type="text"
+                value={editForms[item.id]?.title}
+                onChange={e =>
+                  setEditForms(prev => ({
+                    ...prev,
+                    [item.id]: { ...prev[item.id], title: e.target.value }
+                  }))
+                }
+                placeholder="Title"
+                className="inputField mb-2 w-full"
+              />
+              <textarea
+                value={editForms[item.id]?.description}
+                onChange={e =>
+                  setEditForms(prev => ({
+                    ...prev,
+                    [item.id]: { ...prev[item.id], description: e.target.value }
+                  }))
+                }
+                placeholder="Description"
+                className="inputField mb-2 w-full"
+              />
+              <input
+                type="date"
+                value={editForms[item.id]?.releaseDate}
+                onChange={e =>
+                  setEditForms(prev => ({
+                    ...prev,
+                    [item.id]: { ...prev[item.id], releaseDate: e.target.value }
+                  }))
+                }
+                className="inputField mb-2"
+              />
+              <button
+                onClick={() => handleUpdateExclusive(item.id)}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+              >
+                Update
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      {isAdmin && (
+        <>
+          <ProfileHeaderEditor />
+          <AdminGalleryPanel />
+        </>
+      )}
     </section>
   );
 }
