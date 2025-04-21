@@ -38,4 +38,5 @@ next-env.d.ts
 # amplify
 .amplify
 amplify_outputs*
-amplifyconfiguration*
+amplifyconfiguration*public/images/exclusivecontent/*.mp4
+public/images/exclusivecontent/*.mp4
