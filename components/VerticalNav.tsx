@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   FaHome,
   FaMusic,
@@ -9,25 +9,49 @@ import {
   FaLock,
   FaImage,
   FaUser,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaTools,
+  FaEnvelope,
 } from 'react-icons/fa';
-
-const navItems = [
-  { href: '/', label: 'Home', icon: <FaHome /> },
-  { href: '/music', label: 'Music', icon: <FaMusic /> },
-  { href: '/#videos', label: 'Videos', icon: <FaVideo /> },
-  { href: '/exclusive', label: 'Exclusive', icon: <FaLock /> },
-  { href: '/#gallery', label: 'Gallery', icon: <FaImage /> },
-  { href: '/profile', label: 'Profile', icon: <FaUser /> },
-];
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 export default function VerticalNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { authStatus, signOut, user } = useAuthenticator((context) => [
+    context.authStatus,
+    context.user,
+  ]);
+
+  const isAdmin = (user as any)?.signInUserSession?.accessToken?.payload["cognito:groups"]?.includes("Admin");
+
+  const navItems = [
+    { href: '/', label: 'Home', icon: <FaHome /> },
+    { href: '/music', label: 'Music', icon: <FaMusic /> },
+    { href: '/#videos', label: 'Videos', icon: <FaVideo /> },
+    { href: '/exclusive', label: 'Exclusive', icon: <FaLock /> },
+    { href: '/#gallery', label: 'Gallery', icon: <FaImage /> },
+    { href: '/contact', label: 'Contact', icon: <FaEnvelope /> },
+  ];
+
+  if (authStatus === 'authenticated') {
+    if (isAdmin) {
+      navItems.push({ href: '/admin/dashboard', label: 'Dashboard', icon: <FaTools /> });
+    }
+    navItems.push({ href: '/profile', label: 'Profile', icon: <FaUser /> });
+  }
 
   return (
     <>
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:flex-col md:w-20 lg:w-64 bg-zinc-900 text-white p-4">
-        <div className="text-xl font-bold tracking-wider mb-6 hidden lg:block">Str8hitzz</div>
+        <div className="text-xl font-bold tracking-wider mb-6 hidden lg:block">
+          Str8hitzz
+          {authStatus === 'authenticated' && user && (
+            <div className="text-sm mt-2 text-zinc-300">Welcome, {user.username}</div>
+          )}
+        </div>
         <nav className="flex flex-col gap-4 items-center lg:items-start">
           {navItems.map(({ href, label, icon }) => (
             <Link
@@ -41,6 +65,26 @@ export default function VerticalNav() {
               <span className="hidden lg:inline text-sm">{label}</span>
             </Link>
           ))}
+          {authStatus === 'authenticated' ? (
+            <button
+              onClick={() => {
+                signOut();
+                router.push('/login');
+              }}
+              className="flex items-center gap-3 px-2 py-2 mt-4 text-left w-full hover:bg-zinc-800 rounded-md justify-center lg:justify-start"
+            >
+              <FaSignOutAlt className="text-lg" />
+              <span className="hidden lg:inline text-sm">Logout</span>
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-3 px-2 py-2 mt-4 hover:bg-zinc-800 rounded-md justify-center lg:justify-start"
+            >
+              <FaSignInAlt className="text-lg" />
+              <span className="hidden lg:inline text-sm">Login</span>
+            </Link>
+          )}
         </nav>
       </div>
 
@@ -58,6 +102,26 @@ export default function VerticalNav() {
             <span>{label}</span>
           </Link>
         ))}
+        {authStatus === 'authenticated' ? (
+          <button
+            onClick={() => {
+              signOut();
+              router.push('/login');
+            }}
+            className="flex flex-col items-center text-xs text-white"
+          >
+            <FaSignOutAlt className="text-lg" />
+            <span>Logout</span>
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="flex flex-col items-center text-xs text-white"
+          >
+            <FaSignInAlt className="text-lg" />
+            <span>Login</span>
+          </Link>
+        )}
       </div>
     </>
   );

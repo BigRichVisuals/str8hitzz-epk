@@ -12,8 +12,8 @@ import { createExclusiveContent } from "@/mutations";
 import { GraphQLResult } from "@aws-amplify/api";
 import { listExclusiveContents } from "@/queries";
 import { updateExclusiveContent } from "@/mutations";
-import ProfileHeaderSettings from "../../../components/ProfileHeaderSettings";
-import AdminGallery from "../../../components/AdminGallery";
+import ProfileHeaderEditor from "../../../components/ProfileHeaderEditor";
+import AdminGalleryPanel from "../../../components/AdminGalleryPanel";
 
 Amplify.configure(outputs);
 
@@ -50,7 +50,15 @@ export default function AdminDashboard() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [category, setCategory] = useState("music");
 
-  // Create Exclusive Content
+  // Early return for non-admin users
+  if (authStatus === "unauthenticated" || !isAdmin) {
+    return (
+      <div className="text-white text-center mt-10">
+        <h1 className="text-2xl font-bold">Access Denied</h1>
+        <p className="mt-2">You do not have permission to view this page.</p>
+      </div>
+    );
+  }
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
@@ -295,8 +303,8 @@ export default function AdminDashboard() {
       )}
       {isAdmin && (
         <>
-          <ProfileHeaderSettings />
-          <AdminGallery />
+          <ProfileHeaderEditor />
+          <AdminGalleryPanel />
         </>
       )}
     </section>

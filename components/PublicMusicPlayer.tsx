@@ -3,6 +3,7 @@
  "use client";
  
  import { useEffect, useState, useRef } from "react";
+ import { fetchAuthSession } from 'aws-amplify/auth';
  import { client } from "@models";
  import { listMusicTracks } from "@/queries";
  import { useAuthenticator } from "@aws-amplify/ui-react";
@@ -28,11 +29,24 @@
  
    useEffect(() => {
      const loadTracks = async () => {
-       const res = await client.graphql({ query: listMusicTracks });
-       if ("data" in res && res.data?.listMusicTracks?.items) {
-         setTracks(res.data.listMusicTracks.items.filter(Boolean));
+       try {
+         const session = await fetchAuthSession();
+         const credentials = session.credentials;
+ 
+         if (!credentials) {
+           console.warn("No AWS credentials available.");
+           return;
+         }
+ 
+         const res = await client.graphql({ query: listMusicTracks });
+         if ("data" in res && res.data?.listMusicTracks?.items) {
+           setTracks(res.data.listMusicTracks.items.filter(Boolean));
+         }
+       } catch (error) {
+         console.error("Error loading tracks:", error);
        }
      };
+ 
      loadTracks();
    }, []);
  

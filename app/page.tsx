@@ -68,6 +68,20 @@ import AdminMusicUploadPanel from '../components/AdminMusicUploadPanel';
          </div>
        </section>
  
-     </div>
-   );
- }
+      <section id="contact-cta" className="p-6 max-w-4xl mx-auto text-white">
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-10 shadow-md text-center">
+          <h2 className="text-2xl font-semibold mb-4">Let’s Work Together</h2>
+          <p className="text-sm mb-6 text-zinc-300">
+            Whether you're looking for production, collaboration, or booking — reach out and connect directly.
+          </p>
+          <a
+            href="/contact"
+            className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+          >
+            📩 Contact Me
+          </a>
+        </div>
+      </section>
+    </div>
+  );
+}

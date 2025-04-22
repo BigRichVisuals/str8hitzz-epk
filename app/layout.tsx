@@ -1,5 +1,6 @@
 import '../app/globals.css';
-import VerticalNav from '../components/VerticalNav';
+import ClientLayout from '../components/clientlayout';
+import AmplifyAuthProvider from '../components/AmplifyAuthProvider';
 
 export const metadata = {
   title: 'Str8hitzz EPK',
@@ -9,9 +10,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen text-white bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/hero.jpg')" }}>
-        <VerticalNav />
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+      <body>
+        <AmplifyAuthProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </AmplifyAuthProvider>
       </body>
     </html>
   );
