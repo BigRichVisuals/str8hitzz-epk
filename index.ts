@@ -1,4 +1,4 @@
-import { ModelInit, MutableModel, PersistentModelConstructor, __modelMeta__, ManagedIdentifier } from "@aws-amplify/datastore";
+import { ModelInit, MutableModel, PersistentModelConstructor, __modelMeta__, ManagedIdentifier, LazyLoadingDisabled } from "@aws-amplify/datastore";
 import { initSchema } from "@aws-amplify/datastore";
 
 
@@ -8,9 +8,14 @@ import { schema } from "./schema";
 
 
 
+const { PageView, ExclusiveContent } = initSchema(schema) as {
+  PageView: PersistentModelConstructor<any>;
+  ExclusiveContent: PersistentModelConstructor<any>;
+};
+
 type EagerPageViewModel = {
   readonly [__modelMeta__]: {
-    identifier: ManagedIdentifier<PageView, 'id'>;
+    identifier: ManagedIdentifier<typeof PageView, 'copyOf'>;
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
@@ -22,7 +27,7 @@ type EagerPageViewModel = {
 
 type LazyPageViewModel = {
   readonly [__modelMeta__]: {
-    identifier: ManagedIdentifier<PageView, 'id'>;
+    identifier: ManagedIdentifier<typeof PageView, 'copyOf'>;
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
@@ -40,7 +45,7 @@ export declare const PageViewModel: (new (init: ModelInit<PageViewModel>) => Pag
 
 type EagerExclusiveContentModel = {
   readonly [__modelMeta__]: {
-    identifier: ManagedIdentifier<ExclusiveContent, 'id'>;
+    identifier: ManagedIdentifier<typeof ExclusiveContent, 'copyOf'>;
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
@@ -54,7 +59,7 @@ type EagerExclusiveContentModel = {
 
 type LazyExclusiveContentModel = {
   readonly [__modelMeta__]: {
-    identifier: ManagedIdentifier<ExclusiveContent, 'id'>;
+    identifier: ManagedIdentifier<typeof ExclusiveContent, 'copyOf'>;
     readOnlyFields: 'createdAt' | 'updatedAt';
   };
   readonly id: string;
@@ -71,13 +76,6 @@ export declare type ExclusiveContentModel = LazyLoading extends LazyLoadingDisab
 export declare const ExclusiveContentModel: (new (init: ModelInit<ExclusiveContentModel>) => ExclusiveContentModel) & {
   copyOf(source: ExclusiveContentModel, mutator: (draft: MutableModel<ExclusiveContentModel>) => MutableModel<ExclusiveContentModel> | void): ExclusiveContentModel;
 }
-
-
-
-const { PageView, ExclusiveContent } = initSchema(schema) as {
-  PageView: PersistentModelConstructor<PageViewModel>;
-  ExclusiveContent: PersistentModelConstructor<ExclusiveContentModel>;
-};
 
 export {
   PageView,
