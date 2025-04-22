@@ -3,7 +3,7 @@ import ClientLayout from '../components/clientlayout';
 import AmplifyAuthProvider from '../components/AmplifyAuthProvider';
 
 export const metadata = {
-  title: 'Str8hitzz EPK',
+  title: 'Str8hitz EPK',
   description: 'Official music profile.',
 };
 

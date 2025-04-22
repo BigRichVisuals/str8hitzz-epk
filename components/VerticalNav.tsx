@@ -47,7 +47,7 @@ export default function VerticalNav() {
       {/* Desktop Sidebar */}
       <div className="hidden md:flex md:flex-col md:w-20 lg:w-64 bg-zinc-900 text-white p-4">
         <div className="text-xl font-bold tracking-wider mb-6 hidden lg:block">
-          Str8hitzz
+          Str8hitz
           {authStatus === 'authenticated' && user && (
             <div className="text-sm mt-2 text-zinc-300">Welcome, {user.username}</div>
           )}

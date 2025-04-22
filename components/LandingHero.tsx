@@ -17,7 +17,7 @@ export default function Hero() {
         <Link href="#hero">
           <Image
             src="/images/logo.jpg"
-            alt="Str8Hitzz Logo"
+            alt="Str8Hitz Logo"
             width={40}
             height={40}
             className="rounded-full border border-white"
@@ -28,10 +28,10 @@ export default function Hero() {
       {/* Centered content */}
       <div className="relative z-20 flex h-full flex-col justify-center items-center text-center text-white px-4">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg px-8 py-16 max-w-[95%] sm:max-w-xl mx-auto mb-24 mt-12">
-            <h1 className="text-4xl sm:text-5xl font-extrabold drop-shadow-lg">Str8Hitzz</h1>
+            <h1 className="text-4xl sm:text-5xl font-extrabold drop-shadow-lg">Str8Hitz</h1>
             <h2 className="text-xl sm:text-2xl mt-2 font-medium">EPK • Music Producer</h2>
             <p className="mt-4 max-w-xl text-sm sm:text-base text-gray-200">
-              Known for crafting world-class sounds and unforgettable beats. Str8Hitzz blends international energy with South Florida fire.
+              Known for crafting world-class sounds and unforgettable beats. Str8Hitz blends international energy with South Florida fire.
             </p>
             <div className="mt-8">
               <Link

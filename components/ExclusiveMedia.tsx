@@ -12,7 +12,7 @@ import { ExclusiveContent as ECType } from "@root/API"; // Update the path to th
 export default function ExclusiveContent() {
   const router = useRouter();
   const { authStatus, user } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
-  const isAdmin = user?.signInDetails?.loginId === "admin@str8hitzz.com";
+  const isAdmin = user?.signInDetails?.loginId === "admin@str8hitz.com";
 
   const [exclusive, setExclusive] = useState<ECType[]>([]);
   const [file, setFile] = useState<File | null>(null);
