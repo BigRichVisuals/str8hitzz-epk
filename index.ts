@@ -1,5 +1,8 @@
-import { ModelInit, MutableModel, PersistentModelConstructor } from "@aws-amplify/datastore";
+import { ModelInit, MutableModel, PersistentModelConstructor, __modelMeta__, ManagedIdentifier } from "@aws-amplify/datastore";
 import { initSchema } from "@aws-amplify/datastore";
+
+
+type LazyLoading = LazyLoadingDisabled;
 
 import { schema } from "./schema";
 
